@@ -1,96 +1,117 @@
-:root { 
-    --sky-deep: #020617;
-    --sky-glow: #0ea5e9; 
-    --cloud-core: #ffffff;
-    --cloud-shadow: #cbd5e1;
-    --debug-glow: rgba(14, 165, 233, 0.4);
+:root {
+    /* Color Palette from the Icon */
+    --bg-muted: #7895a4;      /* The muted blue-grey background */
+    --cloud-dark: #2c3236;    /* The charcoal cloud color */
+    --text-white: #f0f0f0;    /* White for text, rain, and lightning */
+    --ui-accent: #4a5761;     /* A slightly lighter grey for UI elements */
 }
 
-body { 
-    font-family: 'Inter', system-ui, sans-serif; 
-    background: radial-gradient(circle at center, #0c4a6e 0%, var(--sky-deep) 100%); 
-    color: #1e293b; 
-    display: flex; 
+/* NOISE TEXTURE for the whole page */
+body::before {
+    content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4; mix-blend-mode: overlay;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--bg-muted); /* Solid muted background */
+    color: var(--text-white);
+    display: flex;
     flex-direction: column;
-    justify-content: center; 
-    align-items: center; 
-    min-height: 100vh; 
-    margin: 0; 
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
     overflow: hidden;
 }
 
-/* THE HYPER-NIMBUS CHASSIS */
-.chassis { 
+/* THE TEXTURED STORM CHASSIS */
+.chassis {
     position: relative;
     z-index: 10;
-    background: var(--cloud-core);
-    /* Irregular base shape */
-    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
-    padding: 50px 35px; 
-    width: 280px; 
-    box-shadow: 0 50px 80px -20px rgba(0,0,0,0.5);
+    background: var(--cloud-dark);
+    /* Bumpy, organic shape */
+    border-radius: 55% 45% 60% 40% / 40% 50% 50% 60%;
+    padding: 70px 50px;
+    width: 320px;
     text-align: center;
-    animation: nimbus-drift 12s infinite ease-in-out;
+    
+    /* Texture and shadow to match the icon */
+    box-shadow: 
+        inset 0 0 50px rgba(0,0,0,0.5), /* Inner depth */
+        0 15px 30px rgba(0,0,0,0.4);    /* Drop shadow */
+    
+    /* Apply noise texture specifically to the cloud */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E");
+    background-blend-mode: soft-light;
+
+    animation: storm-drift 20s infinite ease-in-out;
 }
 
-/* THE PUFFS: Creating Volume */
-.chassis::before, .chassis::after {
-    content: "";
-    position: absolute;
-    background: inherit;
-    border-radius: 50%;
-    z-index: -1;
-}
-
-/* Left puff */
-.chassis::before {
-    width: 150px; height: 150px;
-    top: -50px; left: -30px;
-    box-shadow: inset -20px -20px 40px var(--cloud-shadow);
-}
-
-/* Right puff */
-.chassis::after {
-    width: 130px; height: 130px;
-    top: -40px; right: -20px;
-    box-shadow: inset 10px -10px 30px var(--cloud-shadow);
-}
-
-@keyframes nimbus-drift {
+@keyframes storm-drift {
     0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    33% { transform: translate(15px, -10px) rotate(1deg); }
-    66% { transform: translate(-10px, 5px) rotate(-1deg); }
+    50% { transform: translate(5px, -8px) rotate(1deg); }
 }
 
-/* DEBUG MIST: The hidden toggle */
-#debugToggle {
-    font-size: 9px;
-    color: var(--sky-glow);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
-    margin-top: 15px;
-    opacity: 0.5;
-    transition: 0.3s;
-}
-#debugToggle:hover { opacity: 1; text-shadow: 0 0 10px var(--sky-glow); }
-
-#debugLog {
-    position: fixed;
-    bottom: 20px;
-    width: 90%;
-    max-height: 120px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #10b981; /* Terminal Green */
-    font-family: monospace;
-    font-size: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    overflow-y: auto;
-    border: 1px solid #10b981;
-    z-index: 100;
+/* WHITE RAINDROP VISUALIZER */
+.wave-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 15px;
+    height: 160px;
+    width: 260px;
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    pointer-events: none;
 }
 
-/* Standard UI Elements ... (Keep buttons and inputs from previous version) */
-.monitor h2 { font-weight: 900; letter-spacing: 4px; color: #0f172a; }
+.wave-bar {
+    width: 4px; height: 0;
+    /* Stark white rain to match the icon */
+    background: var(--text-white);
+    border-radius: 2px; /* Sharper, more illustrative ends */
+    opacity: 0;
+    transition: height 0.1s ease-out, opacity 0.1s;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+.active .wave-bar { opacity: 0.8; animation: rain-fall 0.7s infinite linear; }
+@keyframes rain-fall { 0% { transform: translateY(0); } 100% { transform: translateY(25px); opacity: 0; } }
+
+/* UI ELEMENTS - High Contrast & Textured */
+.monitor { background: transparent; margin-bottom: 25px; min-height: 140px; }
+h2 { font-weight: 900; letter-spacing: 4px; color: var(--text-white); text-transform: uppercase; margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
+#status { font-size: 11px; color: #b0c4d1; font-family: monospace; letter-spacing: 1px; margin-top: 12px; font-weight: bold; }
+
+input {
+    background: rgba(0, 0, 0, 0.2); color: var(--text-white); border: 2px solid var(--ui-accent);
+    padding: 14px; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-size: 14px; text-align: center;
+    border-radius: 8px; transition: 0.3s; font-weight: bold;
+}
+input::placeholder { color: rgba(240, 240, 240, 0.5); }
+input:focus { outline: none; border-color: var(--text-white); background: rgba(0, 0, 0, 0.3); }
+
+button { width: 100%; padding: 16px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 12px; transition: 0.3s; letter-spacing: 2px; color: var(--cloud-dark); }
+.btn-prime { 
+    background: var(--text-white); 
+    box-shadow: 0 4px 0px rgba(0,0,0,0.3); /* stylized 3D press effect */
+}
+.btn-prime:hover { transform: translateY(2px); box-shadow: 0 2px 0px rgba(0,0,0,0.3); }
+.btn-prime:active { transform: translateY(4px); box-shadow: none; }
+
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.btn-sec { 
+    background: var(--ui-accent); 
+    color: var(--text-white);
+    box-shadow: 0 4px 0px rgba(0,0,0,0.2);
+}
+.btn-sec:hover { background: #5a6975; transform: translateY(2px); box-shadow: 0 2px 0px rgba(0,0,0,0.2); }
+
+#debugToggle { font-size: 10px; color: #b0c4d1; margin-top: 25px; cursor: pointer; opacity: 0.7; font-weight: bold; }
+#debugLog { position: fixed; bottom: 10px; width: 92%; max-height: 120px; background: rgba(44, 50, 54, 0.95); color: var(--text-white); font-family: monospace; font-size: 10px; padding: 10px; border-radius: 8px; overflow-y: auto; z-index: 100; border: 2px solid var(--ui-accent); }
 .hidden { display: none; }
