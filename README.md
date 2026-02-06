@@ -1,6 +1,6 @@
-# 📻 BlueTune v2: Video-to-Audio Radio
+# 📻 Nimbus: Video-to-Audio Radio
 
-**BlueTune v2** is a lightweight, privacy-focused Progressive Web App (PWA) that transforms your BlueSky video feed into a hands-free audio broadcast. Designed for "de-googled" devices and hardened browsers, it extracts audio streams from BlueSky videos and plays them in a continuous, automated "radio" loop.
+**Nimbus** is a lightweight, privacy-focused Progressive Web App (PWA) that transforms your BlueSky video feed into a hands-free audio broadcast. Designed for "de-googled" devices and hardened browsers, it extracts audio streams from BlueSky videos and plays them in a continuous, automated "radio" loop.
 
 ---
 
@@ -48,6 +48,6 @@ Since this is a Progressive Web App, no "App Store" is required:
 
 * **Engine:** Powered by [HLS.js](https://github.com/video-dev/hls.js/)
 * **API:** Built on the [AT Protocol](https://atproto.com/)
-* **Development:** Created as part of the BlueTune Radio project.
+* **Development:** Created as part of the Nimbus project.
 
 Licensed under the MIT License - feel free to fork and tune your own airwaves!
