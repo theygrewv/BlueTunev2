@@ -7,6 +7,7 @@ let audioTag = null;
 let agent = null, hls = null, videoQueue = [], currentIndex = 0;
 let isBusy = false; 
 
+// Restore previous handle
 const savedHandle = localStorage.getItem('bt_handle');
 if (savedHandle) document.getElementById('handle').value = savedHandle;
 
@@ -30,10 +31,9 @@ startBtn.addEventListener('click', async () => {
     } catch (e) { status.innerText = "IGNITION FAILED"; }
 });
 
-// CRITICAL: The Clean Break Reset
 async function resetStation() {
     if (hls) {
-        hls.stopLoad(); // Immediately stop network requests
+        hls.stopLoad();
         hls.detachMedia();
         hls.destroy();
         hls = null;
@@ -45,56 +45,73 @@ async function resetStation() {
         audioTag.remove();
         audioTag = null;
     }
-    // Artificial delay to let the browser's hardware decoder flush
-    return new Promise(resolve => setTimeout(resolve, 200));
+    return new Promise(resolve => setTimeout(resolve, 300)); // Longer breath for hardware
 }
 
 async function playTrack(index) {
-    if (index >= videoQueue.length) {
+    // SAFETY CHECK: Ensure index is valid
+    if (!videoQueue || videoQueue.length === 0 || index >= videoQueue.length) {
         status.innerText = "HORIZON CLEAR";
         visualizer.classList.remove('active');
         isBusy = false;
         return;
     }
 
-    await resetStation(); // Wait for the "Clean Break"
+    await resetStation();
 
-    audioTag = new Audio();
-    audioTag.onended = () => { skipSignal(); };
+    try {
+        audioTag = new Audio();
+        audioTag.onended = () => { skipSignal(); };
 
-    const { playlist, author } = videoQueue[index];
-    
-    hls = new Hls({
-        enableWorker: true,
-        backBufferLength: 0,
-        fragLoadingMaxRetry: 5
-    });
-
-    hls.loadSource(playlist);
-    hls.attachMedia(audioTag);
-    
-    hls.on(Hls.Events.MANIFEST_PARSED, async () => {
-        status.innerText = `SIGNAL: ${author}`;
-        visualizer.classList.remove('hidden');
-        visualizer.classList.add('active');
+        const { playlist, author } = videoQueue[index];
         
-        try {
-            await audioTag.play();
-            isBusy = false; 
-        } catch (error) {
-            status.innerText = "TAP TO RESYNC";
-            isBusy = false;
-            // Interaction fallback for mobile
-            window.addEventListener('click', () => audioTag.play(), {once: true});
-        }
-    });
+        hls = new Hls({
+            enableWorker: true,
+            backBufferLength: 0,
+            manifestLoadingMaxRetry: 10,
+            fragLoadingMaxRetry: 10
+        });
+
+        hls.loadSource(playlist);
+        hls.attachMedia(audioTag);
+        
+        hls.on(Hls.Events.MANIFEST_PARSED, async () => {
+            status.innerText = `SIGNAL: ${author}`;
+            visualizer.classList.remove('hidden');
+            visualizer.classList.add('active');
+            
+            try {
+                await audioTag.play();
+                isBusy = false; 
+            } catch (error) {
+                status.innerText = "TAP TO RESYNC";
+                isBusy = false;
+                window.addEventListener('click', () => audioTag?.play(), {once: true});
+            }
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+                console.warn("HLS Error - Attempting Recovery", data);
+                hls.recoverMediaError();
+            }
+        });
+
+    } catch (err) {
+        console.error("Playback System Crash:", err);
+        status.innerText = "SYSTEM RECOVERY...";
+        isBusy = false;
+        // Auto-attempt the next track if one fails
+        setTimeout(() => skipSignal(), 1000);
+    }
 }
 
 async function skipSignal() {
     if (isBusy) return;
     isBusy = true;
+    
     currentIndex++;
-    status.innerText = "SKIPPING...";
+    status.innerText = `TUNING ${currentIndex + 1}/${videoQueue.length}`;
     await playTrack(currentIndex);
 }
 
@@ -106,6 +123,8 @@ document.getElementById('tuneBtn').addEventListener('click', async () => {
             headers: { "Authorization": `Bearer ${agent.session.accessJwt}` }
         });
         const data = await response.json();
+        
+        // Filter and map
         videoQueue = data.feed
             .filter(f => f.post.embed && f.post.embed.$type === 'app.bsky.embed.video#view')
             .map(f => ({ playlist: f.post.embed.playlist, author: f.post.author.handle }));
@@ -114,8 +133,14 @@ document.getElementById('tuneBtn').addEventListener('click', async () => {
             currentIndex = 0;
             isBusy = true;
             await playTrack(currentIndex);
-        } else { status.innerText = "NO SIGNALS"; }
-    } catch (e) { status.innerText = "LOST SIGNAL"; isBusy = false; }
+        } else { 
+            status.innerText = "NO SIGNALS"; 
+            isBusy = false;
+        }
+    } catch (e) { 
+        status.innerText = "LOST SIGNAL"; 
+        isBusy = false; 
+    }
 });
 
 document.getElementById('skipBtn').addEventListener('click', skipSignal);
@@ -125,4 +150,5 @@ document.getElementById('stopBtn').addEventListener('click', async () => {
     visualizer.classList.remove('active'); 
     status.innerText = "DISSIPATED"; 
     isBusy = false;
+    currentIndex = 0;
 });
