@@ -3,30 +3,30 @@ import { BskyAgent } from 'https://esm.sh/@atproto/api@0.13.20';
 const status = document.getElementById('status');
 const startBtn = document.getElementById('startBtn');
 const visualizer = document.getElementById('visualizer');
-let audioTag = null; // We will create this fresh each time
+let audioTag = null; 
 let agent = null, hls = null, videoQueue = [], currentIndex = 0;
 
 const savedHandle = localStorage.getItem('bt_handle');
 if (savedHandle) document.getElementById('handle').value = savedHandle;
 
 (async function init() {
-    status.innerText = "LIQUID CORE READY";
+    status.innerText = "ATMOSPHERE STABLE";
     startBtn.disabled = false;
-    startBtn.innerText = "POWER ON";
+    startBtn.innerText = "IGNITE";
 })();
 
 startBtn.addEventListener('click', async () => {
     const handle = document.getElementById('handle').value.trim();
     const pass = document.getElementById('app-pw').value.trim();
     try {
-        status.innerText = "CONNECTING...";
+        status.innerText = "ASCENDING...";
         localStorage.setItem('bt_handle', handle);
         agent = new BskyAgent({ service: 'https://bsky.social' });
         await agent.login({ identifier: handle, password: pass });
         document.getElementById('loginSection').classList.add('hidden');
         document.getElementById('tunerSection').classList.remove('hidden');
-        status.innerText = "SYSTEM ONLINE";
-    } catch (e) { status.innerText = "AUTH ERROR"; }
+        status.innerText = "ALTITUDE REACHED";
+    } catch (e) { status.innerText = "IGNITION FAILED"; }
 });
 
 function killPlayback() {
@@ -38,20 +38,19 @@ function killPlayback() {
         audioTag.pause();
         audioTag.removeAttribute('src');
         audioTag.load();
-        audioTag = null; // Delete the object
+        audioTag = null; 
     }
 }
 
 async function playVideoAudio(index) {
     if (index >= videoQueue.length) {
-        status.innerText = "BANDS CLEAR";
+        status.innerText = "HORIZON CLEAR";
         visualizer.classList.remove('active');
         return;
     }
 
-    killPlayback(); // Clean slate
+    killPlayback(); 
     
-    // Create a brand new Audio object for this specific track
     audioTag = new Audio();
     audioTag.onended = () => { playNext(); };
 
@@ -62,16 +61,16 @@ async function playVideoAudio(index) {
     hls.attachMedia(audioTag);
     
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        status.innerText = `ON-AIR: ${author}`;
+        status.innerText = `SIGNAL: ${author}`;
         visualizer.classList.remove('hidden');
         visualizer.classList.add('active');
-        audioTag.play().catch(() => { status.innerText = "TAP TO RESUME"; });
+        audioTag.play().catch(() => { status.innerText = "TAP TO LISTEN"; });
     });
 }
 
 function playNext() {
     currentIndex++;
-    status.innerText = "RE-TUNING...";
+    status.innerText = "DRIFTING...";
     playVideoAudio(currentIndex);
 }
 
@@ -90,7 +89,7 @@ document.getElementById('tuneBtn').addEventListener('click', async () => {
             currentIndex = 0;
             playVideoAudio(currentIndex);
         } else { status.innerText = "NO SIGNALS"; }
-    } catch (e) { status.innerText = "FETCH ERR"; }
+    } catch (e) { status.innerText = "LOST SIGNAL"; }
 });
 
 document.getElementById('skipBtn').addEventListener('click', () => { 
@@ -100,5 +99,5 @@ document.getElementById('skipBtn').addEventListener('click', () => {
 document.getElementById('stopBtn').addEventListener('click', () => { 
     killPlayback();
     visualizer.classList.remove('active'); 
-    status.innerText = "OFF-AIR"; 
+    status.innerText = "DISSIPATED"; 
 });
