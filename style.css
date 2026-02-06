@@ -1,15 +1,15 @@
 :root { 
+    --sky-deep: #020617;
     --sky-glow: #0ea5e9; 
-    --cloud-white: rgba(255, 255, 255, 0.9);
-    --mist-bottom: rgba(200, 230, 255, 0.95);
-    --projection-light: #0c4a6e;
-    --raindrop: #0ea5e9;
+    --cloud-core: #ffffff;
+    --cloud-shadow: #cbd5e1;
+    --debug-glow: rgba(14, 165, 233, 0.4);
 }
 
 body { 
-    font-family: 'Inter', -apple-system, sans-serif; 
-    background: radial-gradient(circle at center, #0c4a6e 0%, #020617 100%); 
-    color: #333; 
+    font-family: 'Inter', system-ui, sans-serif; 
+    background: radial-gradient(circle at center, #0c4a6e 0%, var(--sky-deep) 100%); 
+    color: #1e293b; 
     display: flex; 
     flex-direction: column;
     justify-content: center; 
@@ -19,74 +19,78 @@ body {
     overflow: hidden;
 }
 
-/* The Nimbus Chassis */
+/* THE HYPER-NIMBUS CHASSIS */
 .chassis { 
     position: relative;
     z-index: 10;
-    background: linear-gradient(180deg, #ffffff 0%, var(--mist-bottom) 100%);
+    background: var(--cloud-core);
+    /* Irregular base shape */
     border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
-    padding: 60px 40px; 
-    width: 300px; 
-    box-shadow: 
-        0 0 0 15px rgba(255, 255, 255, 0.3),
-        -40px -30px 0 5px rgba(255, 255, 255, 0.1),
-        40px -20px 0 2px rgba(255, 255, 255, 0.2),
-        0 40px 100px rgba(0, 0, 0, 0.4);
+    padding: 50px 35px; 
+    width: 280px; 
+    box-shadow: 0 50px 80px -20px rgba(0,0,0,0.5);
     text-align: center;
-    animation: nimbus-float 8s infinite ease-in-out;
+    animation: nimbus-drift 12s infinite ease-in-out;
 }
 
-@keyframes nimbus-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
-}
-
-/* RAINDROP VISUALIZER - Falling Physics */
-.wave-container { 
-    display: flex; 
-    justify-content: space-around; 
-    align-items: flex-start; /* Aligns to top of container */
-    gap: 15px; 
-    height: 150px; 
-    width: 250px;
+/* THE PUFFS: Creating Volume */
+.chassis::before, .chassis::after {
+    content: "";
     position: absolute;
-    top: 90%; /* Starts just below the cloud */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
-    pointer-events: none;
+    background: inherit;
+    border-radius: 50%;
+    z-index: -1;
 }
 
-.wave-bar { 
-    width: 3px; 
-    height: 0; /* Start invisible */
-    background: linear-gradient(180deg, var(--raindrop), transparent); 
-    border-radius: 0 0 10px 10px; 
-    opacity: 0;
-    transition: height 0.1s ease-out, opacity 0.1s;
+/* Left puff */
+.chassis::before {
+    width: 150px; height: 150px;
+    top: -50px; left: -30px;
+    box-shadow: inset -20px -20px 40px var(--cloud-shadow);
 }
 
-/* When active, the bars "fall" and pulse */
-.active .wave-bar { 
-    opacity: 0.6;
-    box-shadow: 0 5px 10px var(--raindrop);
-    animation: fall-pulse 0.8s infinite alternate ease-in-out;
+/* Right puff */
+.chassis::after {
+    width: 130px; height: 130px;
+    top: -40px; right: -20px;
+    box-shadow: inset 10px -10px 30px var(--cloud-shadow);
 }
 
-@keyframes fall-pulse {
-    0% { transform: translateY(0); opacity: 0.3; }
-    100% { transform: translateY(10px); opacity: 0.8; }
+@keyframes nimbus-drift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(15px, -10px) rotate(1deg); }
+    66% { transform: translate(-10px, 5px) rotate(-1deg); }
 }
 
-/* Monitor & Typography */
-.monitor { background: transparent; margin-bottom: 25px; min-height: 120px; }
-h2 { font-weight: 900; color: var(--projection-light); font-size: 1.8rem; margin: 0; letter-spacing: 5px; text-transform: uppercase; text-shadow: 1px 1px 0px rgba(255,255,255,0.8); }
-#status { font-size: 10px; color: #0369a1; margin-top: 10px; text-transform: uppercase; font-family: monospace; font-weight: bold; }
+/* DEBUG MIST: The hidden toggle */
+#debugToggle {
+    font-size: 9px;
+    color: var(--sky-glow);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 15px;
+    opacity: 0.5;
+    transition: 0.3s;
+}
+#debugToggle:hover { opacity: 1; text-shadow: 0 0 10px var(--sky-glow); }
 
-/* UI Elements */
-input { background: rgba(0, 0, 0, 0.05); color: #333; border: none; border-bottom: 2px solid rgba(0, 120, 255, 0.1); padding: 12px; width: 100%; box-sizing: border-box; margin-bottom: 12px; font-size: 14px; text-align: center; }
-button { width: 100%; padding: 15px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 11px; transition: 0.3s; letter-spacing: 2px; }
-.btn-prime { background: #0369a1; color: white; box-shadow: 0 5px 15px rgba(3, 105, 161, 0.3); }
-.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-.btn-sec { background: #e0f2fe; color: #0369a1; }
+#debugLog {
+    position: fixed;
+    bottom: 20px;
+    width: 90%;
+    max-height: 120px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #10b981; /* Terminal Green */
+    font-family: monospace;
+    font-size: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    overflow-y: auto;
+    border: 1px solid #10b981;
+    z-index: 100;
+}
+
+/* Standard UI Elements ... (Keep buttons and inputs from previous version) */
+.monitor h2 { font-weight: 900; letter-spacing: 4px; color: #0f172a; }
 .hidden { display: none; }
