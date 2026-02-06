@@ -5,7 +5,7 @@ const startBtn = document.getElementById('startBtn');
 const visualizer = document.getElementById('visualizer');
 let audioTag = null; 
 let agent = null, hls = null, videoQueue = [], currentIndex = 0;
-let isSwitching = false; // The Interlock Lock
+let isBusy = false; 
 
 const savedHandle = localStorage.getItem('bt_handle');
 if (savedHandle) document.getElementById('handle').value = savedHandle;
@@ -30,10 +30,10 @@ startBtn.addEventListener('click', async () => {
     } catch (e) { status.innerText = "IGNITION FAILED"; }
 });
 
-// Clean-up logic with explicit promise return
-async function clearCore() {
+// CRITICAL: The Clean Break Reset
+async function resetStation() {
     if (hls) {
-        hls.stopLoad();
+        hls.stopLoad(); // Immediately stop network requests
         hls.detachMedia();
         hls.destroy();
         hls = null;
@@ -45,29 +45,29 @@ async function clearCore() {
         audioTag.remove();
         audioTag = null;
     }
-    // Give the hardware decoder a moment to release memory
-    return new Promise(resolve => setTimeout(resolve, 100));
+    // Artificial delay to let the browser's hardware decoder flush
+    return new Promise(resolve => setTimeout(resolve, 200));
 }
 
-async function playVideoAudio(index) {
+async function playTrack(index) {
     if (index >= videoQueue.length) {
         status.innerText = "HORIZON CLEAR";
         visualizer.classList.remove('active');
-        isSwitching = false;
+        isBusy = false;
         return;
     }
 
-    await clearCore(); // Await the full cleanup
+    await resetStation(); // Wait for the "Clean Break"
 
     audioTag = new Audio();
-    audioTag.onended = () => { playNext(); };
+    audioTag.onended = () => { skipSignal(); };
 
     const { playlist, author } = videoQueue[index];
     
     hls = new Hls({
         enableWorker: true,
         backBufferLength: 0,
-        manifestLoadingMaxRetry: 5
+        fragLoadingMaxRetry: 5
     });
 
     hls.loadSource(playlist);
@@ -80,30 +80,26 @@ async function playVideoAudio(index) {
         
         try {
             await audioTag.play();
-            isSwitching = false; // Unlock after successful play
+            isBusy = false; 
         } catch (error) {
-            console.log("Stall recovery active");
             status.innerText = "TAP TO RESYNC";
-            isSwitching = false;
+            isBusy = false;
+            // Interaction fallback for mobile
+            window.addEventListener('click', () => audioTag.play(), {once: true});
         }
-    });
-
-    hls.on(Hls.Events.ERROR, (event, data) => {
-        if (data.fatal) hls.recoverMediaError();
     });
 }
 
-async function playNext() {
-    if (isSwitching) return; // Prevent double-triggering
-    isSwitching = true;
-    
+async function skipSignal() {
+    if (isBusy) return;
+    isBusy = true;
     currentIndex++;
-    status.innerText = "TUNING...";
-    await playVideoAudio(currentIndex);
+    status.innerText = "SKIPPING...";
+    await playTrack(currentIndex);
 }
 
 document.getElementById('tuneBtn').addEventListener('click', async () => {
-    if (isSwitching) return;
+    if (isBusy) return;
     status.innerText = "SCANNING...";
     try {
         const response = await fetch(`https://bsky.social/xrpc/app.bsky.feed.getTimeline?limit=50`, {
@@ -116,19 +112,17 @@ document.getElementById('tuneBtn').addEventListener('click', async () => {
         
         if (videoQueue.length > 0) {
             currentIndex = 0;
-            isSwitching = true;
-            await playVideoAudio(currentIndex);
+            isBusy = true;
+            await playTrack(currentIndex);
         } else { status.innerText = "NO SIGNALS"; }
-    } catch (e) { status.innerText = "LOST SIGNAL"; isSwitching = false; }
+    } catch (e) { status.innerText = "LOST SIGNAL"; isBusy = false; }
 });
 
-document.getElementById('skipBtn').addEventListener('click', async () => { 
-    await playNext();
-});
+document.getElementById('skipBtn').addEventListener('click', skipSignal);
 
 document.getElementById('stopBtn').addEventListener('click', async () => { 
-    await clearCore();
+    await resetStation();
     visualizer.classList.remove('active'); 
     status.innerText = "DISSIPATED"; 
-    isSwitching = false;
+    isBusy = false;
 });
