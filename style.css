@@ -1,83 +1,129 @@
 :root { 
-    --neon: #00f2ff; 
-    --liquid-bg: rgba(0, 150, 255, 0.15);
-    --border-glow: rgba(0, 242, 255, 0.6);
+    --sky-glow: #0ea5e9; 
+    --cloud-white: rgba(255, 255, 255, 0.12);
+    --projection-light: #f0f9ff;
 }
 
 body { 
-    font-family: 'Inter', sans-serif; 
-    background: #000; 
+    font-family: 'Inter', -apple-system, sans-serif; 
+    /* Deep Dark Blue Sky Gradient */
+    background: radial-gradient(circle at center, #0c4a6e 0%, #020617 100%); 
     color: white; 
     display: flex; 
     justify-content: center; 
     align-items: center; 
     min-height: 100vh; 
     margin: 0; 
-}
-
-.chassis { 
-    position: relative;
-    background: var(--liquid-bg);
-    backdrop-filter: blur(25px) saturate(200%); 
-    -webkit-backdrop-filter: blur(25px) saturate(200%);
-    border: 2px solid var(--border-glow);
-    padding: 30px 20px; 
-    border-radius: 50px; 
-    width: 320px; 
-    box-shadow: 0 0 50px rgba(0, 242, 255, 0.2), inset 0 0 30px rgba(0, 242, 255, 0.2);
-    text-align: center;
     overflow: hidden;
 }
 
-.chassis::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
-    pointer-events: none;
+/* The Cloud Chassis (Organic Shape) */
+.chassis { 
+    position: relative;
+    background: var(--cloud-white);
+    backdrop-filter: blur(40px) saturate(110%); 
+    -webkit-backdrop-filter: blur(40px) saturate(110%);
+    
+    /* Organic, cloud-like border radius */
+    border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%;
+    
+    padding: 50px 30px; 
+    width: 340px; 
+    
+    /* Vaporous glow instead of sharp borders */
+    box-shadow: 
+        0 0 80px rgba(14, 165, 233, 0.2), 
+        inset 0 0 30px rgba(255, 255, 255, 0.1);
+        
+    text-align: center;
+    transition: all 5s ease-in-out;
+    animation: drift 15s infinite ease-in-out;
 }
 
+/* Subtle drifting animation */
+@keyframes drift {
+    0%, 100% { transform: translate(0, 0); border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%; }
+    50% { transform: translate(10px, -15px); border-radius: 40% 60% 30% 70% / 60% 40% 40% 60%; }
+}
+
+/* The "Projected" Display Area */
 .monitor { 
-    background: rgba(0, 0, 0, 0.8); 
-    border-radius: 20px; 
-    padding: 40px 20px; 
+    background: transparent; /* Cloud handles the background */
     margin-bottom: 30px; 
-    border: 1px solid var(--neon);
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 180px;
-    z-index: 2;
-    position: relative;
+    min-height: 160px;
 }
 
 h2 { 
-    font-weight: 900; color: var(--neon); font-size: 1.4rem; margin: 0;
-    letter-spacing: 2px; text-shadow: 0 0 15px var(--neon); text-transform: uppercase;
+    font-weight: 900; 
+    color: var(--projection-light);
+    font-size: 1.6rem;
+    margin: 0;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    /* Projection Glow Effect */
+    text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px var(--sky-glow);
+    filter: blur(0.4px); /* Softens the text like a projection through fog */
 }
 
-#status { font-size: 11px; color: #fff; opacity: 0.7; margin-top: 15px; text-transform: uppercase; font-family: monospace; }
+#status { 
+    font-size: 11px; 
+    color: var(--sky-glow); 
+    margin-top: 15px; 
+    text-transform: uppercase; 
+    font-family: monospace;
+    letter-spacing: 2px;
+    opacity: 0.8;
+}
 
-.wave-container { display: flex; justify-content: center; align-items: flex-end; gap: 5px; height: 50px; margin-top: 25px; }
-.wave-bar { width: 5px; height: 6px; background: #fff; border-radius: 10px; box-shadow: 0 0 12px var(--neon); }
-.active .wave-bar { animation: wave 1s infinite ease-in-out; }
+/* Misty Wave Visualizer */
+.wave-container { display: flex; justify-content: center; align-items: flex-end; gap: 6px; height: 40px; margin-top: 25px; }
+.wave-bar { 
+    width: 4px; height: 6px; 
+    background: white; 
+    border-radius: 10px; 
+    box-shadow: 0 0 15px white, 0 0 25px var(--sky-glow);
+    opacity: 0.6;
+}
+.active .wave-bar { animation: wave 1.5s infinite ease-in-out; }
 
-@keyframes wave { 0%, 100% { height: 6px; opacity: 0.4; } 50% { height: 45px; opacity: 1; } }
+@keyframes wave { 0%, 100% { height: 6px; opacity: 0.3; } 50% { height: 35px; opacity: 1; } }
 
+/* Soft Inputs (appearing through the mist) */
 input { 
-    background: rgba(0, 0, 0, 0.5); color: white; border: 1px solid rgba(255, 255, 255, 0.2); 
-    padding: 14px; border-radius: 15px; width: 100%; box-sizing: border-box; 
-    margin-bottom: 10px; font-size: 14px;
+    background: rgba(255, 255, 255, 0.05); 
+    color: white; 
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 14px; 
+    border-radius: 5px; 
+    width: 100%; 
+    box-sizing: border-box; 
+    margin-bottom: 12px; 
+    font-size: 14px;
+    text-align: center;
 }
+input::placeholder { color: rgba(255,255,255,0.3); }
+input:focus { outline: none; border-color: var(--sky-glow); background: rgba(255,255,255,0.1); }
 
 button { 
-    width: 100%; padding: 16px; border-radius: 35px; border: none; 
+    width: 100%; padding: 16px; border-radius: 40px; border: none; 
     font-weight: 800; cursor: pointer; text-transform: uppercase; 
-    font-size: 12px; transition: 0.3s;
+    font-size: 12px; transition: 0.4s; letter-spacing: 2px;
 }
 
-.btn-prime { background: linear-gradient(135deg, #00f2ff, #0072ff); color: #000; box-shadow: 0 5px 20px rgba(0, 242, 255, 0.5); }
-.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-.btn-sec { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
+.btn-prime { 
+    background: rgba(255, 255, 255, 0.9); 
+    color: #0c4a6e; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+.btn-prime:hover:not(:disabled) { background: white; transform: scale(1.03); }
+.btn-prime:disabled { opacity: 0.2; }
+
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+.btn-sec { background: transparent; color: white; border: 1px solid rgba(255, 255, 255, 0.3); }
+.btn-sec:hover { background: rgba(255, 255, 255, 0.1); }
+
 .hidden { display: none; }
