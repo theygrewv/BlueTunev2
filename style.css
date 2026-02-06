@@ -1,14 +1,14 @@
 :root { 
     --sky-glow: #0ea5e9; 
-    --cloud-white: rgba(255, 255, 255, 0.12);
-    --projection-light: #f0f9ff;
+    --cloud-white: rgba(255, 255, 255, 0.85);
+    --mist-bottom: rgba(200, 230, 255, 0.9);
+    --projection-light: #0c4a6e;
 }
 
 body { 
     font-family: 'Inter', -apple-system, sans-serif; 
-    /* Deep Dark Blue Sky Gradient */
     background: radial-gradient(circle at center, #0c4a6e 0%, #020617 100%); 
-    color: white; 
+    color: #333; 
     display: flex; 
     justify-content: center; 
     align-items: center; 
@@ -17,113 +17,114 @@ body {
     overflow: hidden;
 }
 
-/* The Cloud Chassis (Organic Shape) */
+/* The True Nimbus Chassis */
 .chassis { 
     position: relative;
     background: var(--cloud-white);
-    backdrop-filter: blur(40px) saturate(110%); 
-    -webkit-backdrop-filter: blur(40px) saturate(110%);
+    /* Layered background for a vertical "heavy" cloud feel */
+    background: linear-gradient(180deg, #ffffff 0%, var(--mist-bottom) 100%);
     
-    /* Organic, cloud-like border radius */
-    border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%;
+    /* Highly irregular, puffy border radius */
+    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
     
-    padding: 50px 30px; 
-    width: 340px; 
+    padding: 60px 40px; 
+    width: 320px; 
     
-    /* Vaporous glow instead of sharp borders */
+    /* THE PUEFF EFFECT: Multiple shadows create the cloud "lumps" */
     box-shadow: 
-        0 0 80px rgba(14, 165, 233, 0.2), 
-        inset 0 0 30px rgba(255, 255, 255, 0.1);
+        0 0 0 15px rgba(255, 255, 255, 0.4),
+        -40px -30px 0 5px rgba(255, 255, 255, 0.2),
+        40px -20px 0 2px rgba(255, 255, 255, 0.3),
+        0 40px 100px rgba(0, 0, 0, 0.3);
         
     text-align: center;
-    transition: all 5s ease-in-out;
-    animation: drift 15s infinite ease-in-out;
+    /* Soft floating animation */
+    animation: nimbus-float 8s infinite ease-in-out;
 }
 
-/* Subtle drifting animation */
-@keyframes drift {
-    0%, 100% { transform: translate(0, 0); border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%; }
-    50% { transform: translate(10px, -15px); border-radius: 40% 60% 30% 70% / 60% 40% 40% 60%; }
+@keyframes nimbus-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.02); }
 }
 
-/* The "Projected" Display Area */
+/* The Monitor (Projected Text Look) */
 .monitor { 
-    background: transparent; /* Cloud handles the background */
-    margin-bottom: 30px; 
+    background: transparent;
+    margin-bottom: 25px; 
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 160px;
+    min-height: 140px;
 }
 
 h2 { 
     font-weight: 900; 
     color: var(--projection-light);
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     margin: 0;
-    letter-spacing: 4px;
+    letter-spacing: 5px;
     text-transform: uppercase;
-    /* Projection Glow Effect */
-    text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px var(--sky-glow);
-    filter: blur(0.4px); /* Softens the text like a projection through fog */
+    /* Inverted shadow for "Sunlight through cloud" look */
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+    opacity: 0.9;
 }
 
 #status { 
-    font-size: 11px; 
-    color: var(--sky-glow); 
-    margin-top: 15px; 
+    font-size: 10px; 
+    color: #0369a1; 
+    margin-top: 10px; 
     text-transform: uppercase; 
-    font-family: monospace;
-    letter-spacing: 2px;
-    opacity: 0.8;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
-/* Misty Wave Visualizer */
-.wave-container { display: flex; justify-content: center; align-items: flex-end; gap: 6px; height: 40px; margin-top: 25px; }
+/* Raindrop Wave Visualizer */
+.wave-container { display: flex; justify-content: center; align-items: flex-end; gap: 6px; height: 35px; margin-top: 20px; }
 .wave-bar { 
-    width: 4px; height: 6px; 
-    background: white; 
+    width: 3px; height: 4px; 
+    background: var(--sky-glow); 
     border-radius: 10px; 
-    box-shadow: 0 0 15px white, 0 0 25px var(--sky-glow);
-    opacity: 0.6;
+    opacity: 0.5;
 }
-.active .wave-bar { animation: wave 1.5s infinite ease-in-out; }
+.active .wave-bar { animation: wave 1.2s infinite ease-in-out; }
 
-@keyframes wave { 0%, 100% { height: 6px; opacity: 0.3; } 50% { height: 35px; opacity: 1; } }
+@keyframes wave { 0%, 100% { height: 4px; opacity: 0.3; } 50% { height: 30px; opacity: 1; } }
 
-/* Soft Inputs (appearing through the mist) */
+/* Cloud-Integrated Inputs */
 input { 
-    background: rgba(255, 255, 255, 0.05); 
-    color: white; 
+    background: rgba(0, 0, 0, 0.05); 
+    color: #333; 
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 14px; 
-    border-radius: 5px; 
+    border-bottom: 2px solid rgba(0, 120, 255, 0.1);
+    padding: 12px; 
+    border-radius: 0; 
     width: 100%; 
     box-sizing: border-box; 
     margin-bottom: 12px; 
     font-size: 14px;
     text-align: center;
+    transition: 0.3s;
 }
-input::placeholder { color: rgba(255,255,255,0.3); }
-input:focus { outline: none; border-color: var(--sky-glow); background: rgba(255,255,255,0.1); }
+input::placeholder { color: #888; }
+input:focus { outline: none; border-bottom-color: var(--sky-glow); background: rgba(0, 0, 0, 0.08); }
 
+/* Solid "Heavy" Buttons */
 button { 
-    width: 100%; padding: 16px; border-radius: 40px; border: none; 
+    width: 100%; padding: 15px; border-radius: 50px; border: none; 
     font-weight: 800; cursor: pointer; text-transform: uppercase; 
-    font-size: 12px; transition: 0.4s; letter-spacing: 2px;
+    font-size: 11px; transition: 0.3s; letter-spacing: 2px;
 }
 
 .btn-prime { 
-    background: rgba(255, 255, 255, 0.9); 
-    color: #0c4a6e; 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: #0369a1; 
+    color: white; 
+    box-shadow: 0 5px 15px rgba(3, 105, 161, 0.3);
 }
-.btn-prime:hover:not(:disabled) { background: white; transform: scale(1.03); }
-.btn-prime:disabled { opacity: 0.2; }
+.btn-prime:hover:not(:disabled) { background: #075985; transform: scale(1.02); }
 
-.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-.btn-sec { background: transparent; color: white; border: 1px solid rgba(255, 255, 255, 0.3); }
-.btn-sec:hover { background: rgba(255, 255, 255, 0.1); }
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.btn-sec { background: #e0f2fe; color: #0369a1; }
+.btn-sec:hover { background: #bae6fd; }
 
 .hidden { display: none; }
