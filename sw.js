@@ -1,5 +1,5 @@
-// VERSION BUMP: v18-textured-storm
-const CACHE_NAME = 'nimbus-v18-textured-storm';
+// VERSION BUMP: v19-deep-reset
+const CACHE_NAME = 'nimbus-v19-deep-reset';
 
 const ASSETS = [
   './',
@@ -12,7 +12,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  self.skipWaiting();
+  self.skipWaiting(); 
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
@@ -21,7 +21,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     Promise.all([
-      self.clients.claim(),
+      self.clients.claim(), 
       caches.keys().then(keys => {
         return Promise.all(keys.map(key => {
           if (key !== CACHE_NAME) return caches.delete(key);
